@@ -1,26 +1,11 @@
 import { User } from "../../models/User";
-import { createAccessToken, createRefreshToken } from "../../utils/jwt";
-import jwt from "jsonwebtoken";
+import { createAccessToken } from "../../utils/jwt";
 
 export const authResolvers = {
   Query: {
     me: async (_: any, __: any, context: any) => {
-      if (!context.isAuthenticated) throw new Error("غير مصرح لك");
+      if (!context.isAuthenticated) throw new Error("Unauthorized access");
       return context.user;
-    },
-    refreshToken: async (_: any, { token }: { token: string }) => {
-      try {
-        const payload: any = jwt.verify(token, process.env.JWT_REFRESH_SECRET!);
-        const user = await User.findById(payload.userId);
-        if (!user) throw new Error("User not found");
-
-        const accessToken = createAccessToken(user._id.toString());
-        const refreshToken = createRefreshToken(user._id.toString());
-
-        return { accessToken, refreshToken, user };
-      } catch {
-        throw new Error("Invalid refresh token");
-      }
     }
   },
   Mutation: {
@@ -32,9 +17,8 @@ export const authResolvers = {
       await user.save();
 
       const accessToken = createAccessToken(user._id.toString());
-      const refreshToken = createRefreshToken(user._id.toString());
 
-      return { accessToken, refreshToken, user };
+      return { accessToken, user };
     },
     login: async (_: any, { email, password }: any) => {
       const user = await User.findOne({ email });
@@ -44,9 +28,8 @@ export const authResolvers = {
       if (!valid) throw new Error("Invalid credentials");
 
       const accessToken = createAccessToken(user._id.toString());
-      const refreshToken = createRefreshToken(user._id.toString());
 
-      return { accessToken, refreshToken, user };
+      return { accessToken, user };
     },
     logout: async () => {
       return true;

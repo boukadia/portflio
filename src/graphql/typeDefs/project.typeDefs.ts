@@ -4,40 +4,50 @@ export const projectTypeDefs = gql`
   type Project {
     id: ID!
     title: String!
-    description: String!
-    techStack: [String!]!
+    description: String
+    technologies: [String!]!
+    githubUrl: String
+    liveUrl: String
+    status: ProjectStatus!
     owner: User!
     createdAt: String!
     updatedAt: String!
   }
 
+  enum ProjectStatus {
+    DRAFT
+    IN_PROGRESS
+    COMPLETED
+    ARCHIVED
+  }
+
   input CreateProjectInput {
     title: String!
-    description: String!
-    techStack: [String!]!
+    description: String
+    technologies: [String!]!
+    githubUrl: String
+    liveUrl: String
+    status: ProjectStatus = DRAFT
   }
 
   input UpdateProjectInput {
     title: String
     description: String
-    techStack: [String!]
+    technologies: [String!]
+    githubUrl: String
+    liveUrl: String
+    status: ProjectStatus
   }
 
   extend type Query {
-    # جلب جميع المشاريع
     projects: [Project!]!
-    # جلب مشروع واحد بالمعرف
     project(id: ID!): Project
-    # جلب مشاريع المستخدم الحالي
     myProjects: [Project!]!
   }
 
   extend type Mutation {
-    # إنشاء مشروع جديد
     createProject(input: CreateProjectInput!): Project!
-    # تحديث مشروع
     updateProject(id: ID!, input: UpdateProjectInput!): Project!
-    # حذف مشروع
     deleteProject(id: ID!): Boolean!
   }
 `;
